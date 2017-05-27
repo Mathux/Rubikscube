@@ -87,7 +87,7 @@ module Cube = struct
     | [] -> failwith "empty cycle "
     | x::q ->
        begin
-         let temp = x in
+         let temp = cub.(x) in
          let rec aux_cycle l = match l with
            | [] -> failwith "aux_cycle error"
            | [y] -> cub.(y) <- temp
@@ -113,5 +113,3 @@ end
 
 let cube = Cube.construct ()
                           
-let _ = Array.iter (fun x -> Printf.printf "%d " (int_of_color x)) cube;
-        Printf.printf "\n"
