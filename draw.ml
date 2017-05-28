@@ -1,5 +1,6 @@
 open Graphics
-
+open Biks
+       
 let block = 50
 let gblock = 3*block
               
@@ -12,28 +13,27 @@ let graphics_open () =
 let orange = rgb 255 165 0
                    
 let aff_of_color c = match c with
-  | Biks.White -> white
-  | Biks.Yellow -> yellow
-  | Biks.Green -> green
-  | Biks.Red -> red
-  | Biks.Blue -> blue
-  | Biks.Orange -> orange
+  | White -> white
+  | Yellow -> yellow
+  | Green -> green
+  | Red -> red
+  | Blue -> blue
+  | Orange -> orange
 
 let convert_square n =
   n mod 3,n/3
               
-let square n c =
+let square n n2 c =
   let x,y = convert_square n in
-  let n2 = Biks.int_of_color c in
-  let yg = if n2=0 then 2*gblock
-           else if n2<5 then gblock
-           else 0 in 
+  let yg = if n2=0 then 3*gblock
+           else if n2<5 then 2*gblock
+           else gblock in 
   let xg = if n2=0 || n2=5 || n2=2 then gblock
            else if n2=1 then 0
            else if n2 = 3 then 2*gblock
            else 3*gblock in
   set_color (aff_of_color c);
-  fill_rect (xg+x*block) (yg+y*block) block block
+  fill_rect (xg+x*block) (yg-y*block-block) block block
 
 type dir = U | L | D | R | N
                          
@@ -92,6 +92,27 @@ let line () =
   List.iter (fun (xd,yd,xa,ya,e) -> lineA xd yd xa ya e) (List.concat (List.map (fun a -> let a,b = (cord_of_int a) in lineS a b ) ([0;1;2;3;4;5])))
 
 let draw_all cube =
-  Array.iteri (fun i x -> square (i mod 9) x) cube;
+  Array.iteri (fun i x -> square (i mod 9) (i/9) x) cube;
   line ()
+
+let rec f () =
+  graphics_open();
+  draw_all cube;
+  let e = wait_next_event [Key_pressed] in
+  if e.keypressed then begin
+	  match e.key with
+      | 'u' -> Cube.turn cube Biks.U; f ()
+      | 'r' -> Cube.turn cube Biks.R; f ()
+      | 'l' -> Cube.turn cube Biks.L; f ()
+      | 'd' -> Cube.turn cube Biks.D; f ()
+      | 'b' -> Cube.turn cube Biks.B; f ()
+      | 'f' -> Cube.turn cube Biks.F; f ()
+      | ' ' -> Cube.restart cube ; f ()
+      | _ -> f ();
+    end
+  else f ();
+  close_graph ()
+
+let _ = f ()
+
              
