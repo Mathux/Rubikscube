@@ -3,36 +3,29 @@ type color = White | Yellow | Green | Red | Blue | Orange
 type turntype = U | R | L | D | B | F
 
 let int_of_color c = match c with
-  | White -> 4
-  | Yellow -> 2
-  | Green -> 3
-  | Red -> 5
-  | Blue -> 1
-  | Orange -> 0
+  | White -> 4 | Yellow -> 2 | Green -> 3
+  | Red -> 5 | Blue -> 1 | Orange -> 0
 
 (* For now, there are not x/y/z moves*)
                
 let int_of_turntype t = match t with
-  | U -> 2
-  | R -> 3
-  | L -> 1
-  | D -> 4
-  | B -> 0
-  | F -> 5
+  | U -> 2 | R -> 3 | L -> 1
+  | D -> 4 | B -> 0 | F -> 5
+
+let turntype_of_int t = match t with
+  | 2 -> U | 3 -> R | 1 -> L
+  | 4 -> D | 0 -> B | 5 -> F
+  | _ -> failwith "Not a color"
 
 let color_of_int n = match n with
-  | 4 -> White
-  | 2 -> Yellow
-  | 3 -> Green
-  | 5 -> Red
-  | 1 -> Blue
-  | 0 -> Orange
+  | 4 -> White | 2 -> Yellow | 3 -> Green
+  | 5 -> Red | 1 -> Blue | 0 -> Orange
   | _ -> failwith "Not a color"
                  
 module type CUBE = sig 
   type t
   val construct : unit -> t
-  val turn : t -> turntype -> t
+  val turn : t -> turntype list -> t
 end
 
 let cord n shift = n*9 + shift
@@ -59,8 +52,8 @@ let adjacent_pieces n = match n with
          List.rev [cord 4 2; cord 0 6; cord 2 6; cord 5 6];
          List.rev [cord 4 5; cord 0 3; cord 2 3; cord 5 3]]
           
-  | 0 -> [List.rev [cord 1 0; cord 4 2; cord 3 2; cord 2 2];
-         List.rev [cord 1 2; cord 4 0; cord 3 0; cord 2 0];
+  | 0 -> [List.rev [cord 1 0; cord 4 0; cord 3 0; cord 2 0];
+         List.rev [cord 1 2; cord 4 2; cord 3 2; cord 2 2];
          List.rev [cord 1 1; cord 4 1; cord 3 1; cord 2 1]]
           
   | _ -> failwith "Not a color"
@@ -85,7 +78,7 @@ module Cube = struct
          in aux_cycle l
        end
                                     
-  let turn cub k =
+  let turn cub kl =
     let face_turn u =
       let i = u*9 in
       cycle cub [i;i+6;i+8;i+2]; (* corners*)
@@ -95,11 +88,10 @@ module Cube = struct
     let other_turn i =
       List.iter (fun l -> cycle cub l) (adjacent_pieces i)
     in
-    
-    let i = int_of_turntype k in
-    face_turn i;
-    other_turn i
-    (* debug cub*)
+    List.iter (fun k -> 
+        let i = int_of_turntype k in
+        face_turn i;
+        other_turn i ) kl
 end
 
 let debug v =
