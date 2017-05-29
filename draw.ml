@@ -14,8 +14,7 @@ let aff_of_color c = match c with
   | White -> white | Yellow -> yellow | Green -> green
   | Red -> red | Blue -> blue | Orange -> orange
 
-let convert_square n =
-  n mod 3,n/3
+let convert_square n = n mod 3,n/3
               
 let square n n2 c =
   let x,y = convert_square n in
@@ -64,38 +63,4 @@ let line () =
 
 let draw_all cube =
   Array.iteri (fun i x -> square (i mod 9) (i/9) x) cube;
-  line ()
-
-let rec f () =
-  graphics_open();
-  draw_all cube;
-  let e = wait_next_event [Key_pressed] in
-  let x = e.mouse_x and y = e.mouse_y in
-  set_color black;
-  fill_rect x y 50 50;
-  if e.keypressed then begin
-	  match e.key with
-      | '\027' -> close_graph ();
-      | 'u' -> Cube.turn cube [Biks.U]; f ()
-      | 'r' -> Cube.turn cube [Biks.R]; f ()
-      | 'l' -> Cube.turn cube [Biks.L]; f ()
-      | 'd' -> Cube.turn cube [Biks.D]; f ()
-      | 'b' -> Cube.turn cube [Biks.B]; f ()
-      | 'f' -> Cube.turn cube [Biks.F]; f ()
-      | 'U' -> Cube.turn cube [Biks.U;Biks.U;Biks.U]; f ()
-      | 'R' -> Cube.turn cube [Biks.R;Biks.R;Biks.R]; f ()
-      | 'L' -> Cube.turn cube [Biks.L;Biks.L;Biks.L]; f ()
-      | 'D' -> Cube.turn cube [Biks.D;Biks.D;Biks.D]; f ()
-      | 'B' -> Cube.turn cube [Biks.B;Biks.B;Biks.B]; f ()
-      | 'F' -> Cube.turn cube [Biks.F;Biks.F;Biks.F]; f ()
-      | 'm' -> Cube.turn cube (Array.to_list (Array.init 50 (fun i -> turntype_of_int(Random.int 6)))); f ()
-      | ' ' -> Cube.restart cube ; f ()
-                                    
-      | _ -> f ();
-    end
-  else f ();
-  close_graph ()
-
-let _ = f ()
-
-             
+  line ()             

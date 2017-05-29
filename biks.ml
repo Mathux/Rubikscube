@@ -22,11 +22,6 @@ let color_of_int n = match n with
   | 5 -> Red | 1 -> Blue | 0 -> Orange
   | _ -> failwith "Not a color"
                  
-module type CUBE = sig 
-  type t
-  val construct : unit -> t
-  val turn : t -> turntype list -> t
-end
 
 let cord n shift = n*9 + shift
                            
@@ -57,47 +52,58 @@ let adjacent_pieces n = match n with
          List.rev [cord 1 1; cord 4 1; cord 3 1; cord 2 1]]
           
   | _ -> failwith "Not a color"
-                 
+
+module type CUBE = sig
+  type t
+  val turn : turntype list -> unit
+  val restart : unit -> unit
+  val draw : unit -> color array
+end
+                                      
                      
-module Cube = struct
-  type t = Array of color
+module Cube : CUBE = struct
+  type t = color array
 
   let construct () = Array.init 54 (fun x -> color_of_int (x/9))
 
-  let restart cub = Array.iteri (fun i x -> cub.(i) <- color_of_int (i/9)) cub
+  let cube = construct ()
+                      
+  let restart () = Array.iteri (fun i x -> cube.(i) <- color_of_int (i/9)) cube
     
-  let cycle cub l = match l with
+  let cycle l = match l with
     | [] -> failwith "empty cycle "
     | x::q ->
        begin
-         let temp = cub.(x) in
+         let temp = cube.(x) in
          let rec aux_cycle l = match l with
            | [] -> failwith "aux_cycle error"
-           | [y] -> cub.(y) <- temp
-           | u1::u2::q -> cub.(u1) <- cub.(u2); aux_cycle (u2::q)
+           | [y] -> cube.(y) <- temp
+           | u1::u2::q -> cube.(u1) <- cube.(u2); aux_cycle (u2::q)
          in aux_cycle l
        end
                                     
-  let turn cub kl =
+  let turn kl =
     let face_turn u =
       let i = u*9 in
-      cycle cub [i;i+6;i+8;i+2]; (* corners*)
-      cycle cub [i+1;i+3;i+7;i+5] (* edges *)
+      cycle [i;i+6;i+8;i+2]; (* corners*)
+      cycle [i+1;i+3;i+7;i+5] (* edges *)
     in
 
     let other_turn i =
-      List.iter (fun l -> cycle cub l) (adjacent_pieces i)
+      List.iter (fun l -> cycle l) (adjacent_pieces i)
     in
     List.iter (fun k -> 
         let i = int_of_turntype k in
         face_turn i;
         other_turn i ) kl
-end
 
+  let draw () = cube
+end
+(*
 let debug v =
   Format.printf "Apres : @.";
   Array.iter (fun x -> Format.printf "%d " (int_of_color x)) v;
   Format.printf "@.@."
                 
 let cube = Cube.construct ()
-                          
+ *)                          
