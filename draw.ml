@@ -1,7 +1,7 @@
 open Graphics
 open Biks
        
-let block = 50
+let block = 30
 let gblock = 3*block
               
 let graphics_open () =
